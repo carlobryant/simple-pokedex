@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedex</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body{
+            background-color: 	rgb(48,104,24);
+            background-image: url("https://i.pinimg.com/originals/29/eb/ff/29ebff03419c406fefda5945dcb66d2d.gif");
+            background-position: center -1300px;
+            background-repeat: no-repeat;
+            background-size: 2400px auto;  
+        }
+
+        .logo{
+            margin: -60px auto;
+            display: block;
+        }
+
+        .searchBar{
+            margin: auto;
+            padding: 20px;
+            width: 70%;
+            text-align: center;
+        }
+
+        #searchData{
+            margin: auto;
+            font-size: 30px;
+            width: 50%;
+            height: 80px;
+            border-radius: 10px;
+            border-style: none;
+        }
+
+        #searchButton{
+            font-size: 30px;
+            padding: 10px;
+            height: 80px;
+            border-radius: 6px;
+            background-color: rgb(218, 165, 32);
+            border-style: none;
+        }
+
+        .pokemonDisplay{
+            color: white;
+            text-shadow: 0px 0px 10px black;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #selector{
+            text-transform: uppercase;
+        }
+        
+        .subtxt{
+            margin: 20px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <img class="logo" src="https://cdn.freebiesupply.com/logos/thumbs/2x/pokemon-8-logo.png" width="400px">
+    <div class="searchBar">
+        <input type="text" id="searchData">
+        <button type="submit" id="searchButton">Search</button>
+    </div>
+    
+    <div class="pokemonDisplay">
+        <h1 id="selector">Search a Pokémon by name</h1>
+        <img class="pokemonImg" src="https://i.gifer.com/origin/28/2860d2d8c3a1e402e0fc8913cd92cd7a_w200.gif" width="400px">
+        <h2 class="subtxt height"></h2>
+        <h2 class="subtxt weight"></h2>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var pokeColor=0;
+            function getData(){
+                if ($("#searchData").val() === "") return;
+                $(".height, .weight").animate({opacity: 0});
+                $('#selector').html("Loading...");
+                $(".pokemonImg").unbind().attr("src", "https://i.gifer.com/origin/28/2860d2d8c3a1e402e0fc8913cd92cd7a_w200.gif").animate({width: "+=400"});
+                $.ajax({
+                    url: 'https://pokeapi.co/api/v2/pokemon/'+$("#searchData").val(),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data){
+                        $(".pokemonImg").animate({width: "-=400"});
+                        $(".height, .weight").animate({opacity: 0}, function(){
+                            $("#selector").html($("#searchData").val());
+                            $(".pokemonImg").attr("src", data.sprites.other.showdown.front_default);
+                            $(".height").html("Height: " + (data.height/10) + " m");
+                            $(".weight").html("Weight: " + (data.weight/10) + " kg");
+
+                            $(".pokemonImg, .height, .weight").ready(function(){
+                                $(".height, .weight").animate({opacity: 1});
+                                $(".pokemonImg").on('mouseover', function(){
+                                    let imgHeight = $(this).height();
+                                    $(".pokemonImg").attr("src", data.sprites.other.showdown.back_default);
+                                    $(".pokemonImg").attr("height", imgHeight);
+                                }).on('mouseout', function(){
+                                    $(".pokemonImg").attr("height", "auto");
+                                    $(".pokemonImg").attr("src", data.sprites.other.showdown.front_default);
+                                });
+                            });
+                        });
+                        
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        $(".pokemonImg").attr("height", "auto");
+                        $(".pokemonImg").animate({width: "-=400"});
+                        $(".height, .weight").animate({opacity: 0}, function(){
+                            $("#selector").animate({opacity: 1});
+                            $('#selector').html("data not found!");
+                            $(".pokemonImg").attr("src", "https://art.pixilart.com/f1e65dd24607f2f.png");
+                        });   
+                    }
+                });
+            }
+
+            $("#searchButton").click(function(){
+                getData();
+            });
+
+            $("#searchData").on('keypress',function(e) {
+                if(e.which == 13) getData();
+            });
+
+            $("#searchButton").on('mouseover', function(){
+                $(this).animate({width: "+=100"});
+            }).on('mouseout', function(){
+                $(this).animate({width: "-=100"});
+            });
+        });
+        
+    </script>
+</body>
+</html>
